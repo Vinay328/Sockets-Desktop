@@ -7,7 +7,7 @@ const dialog = require('electron').dialog;
 
 //Third party dependencies
 const io = require('socket.io-client');
-let socket = io.connect('http://localhost:4000');
+let socket = io.connect('https://server-socket.herokuapp.com');
 
 socket.on('connect_error', (error) => {
     dialog.showErrorBox("Connection Error", "Can't establish connection to the socket server, quitting the app");
