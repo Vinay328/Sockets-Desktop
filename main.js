@@ -9,7 +9,21 @@ const dialog = require('electron').dialog;
 const io = require('socket.io-client');
 let socket = io.connect('http://localhost:4000');
 
-let userName = 'Anonymous';
+socket.on('connect_error', (error) => {
+    dialog.showErrorBox("Connection Error", "Can't establish connection to the socket server, quitting the app");
+    app.quit();
+});
+
+socket.on('connect', () => {
+
+    let myNotification = new Notification({
+        title: "Connection Successfull",
+        body: "Successfully established connection to the socket server"
+    });
+
+    myNotification.show();
+
+});
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -75,26 +89,26 @@ socket.on('chat', function (data) {
 
     mainWindow.webContents.send('message-received', data);
 
-        let myNotification = new Notification({
-            title: data.userName,
-            body: data.message,
-            hasReply: true,
-            silent: false,
-            closeButtonText: 'close'
-        });
+    let myNotification = new Notification({
+        title: data.userName,
+        body: data.message,
+        hasReply: true,
+        silent: false,
+        closeButtonText: 'close'
+    });
 
-        myNotification.show();
+    myNotification.show();
 
-        myNotification.on('reply', (event, hasReply) => {
+    myNotification.on('reply', (event, hasReply) => {
 
-            let data = {
-                message: hasReply,
-                userName: userName,
-            };
+        let data = {
+            message: hasReply,
+            userName: userName,
+        };
 
-            mainWindow.webContents.send('own-message', data);
-            socket.emit('chat',data);
+        mainWindow.webContents.send('own-message', data);
+        socket.emit('chat', data);
 
-        });
+    });
 });
 
