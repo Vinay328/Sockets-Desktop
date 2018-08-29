@@ -10,7 +10,9 @@ const overlay = document.getElementById('overlay');
 
 let username;
 
-submitBtn.addEventListener('click', function () {
+submitBtn.addEventListener('click', function (event) {
+
+    event.preventDefault();
 
     if(document.getElementById('user-name').value.trim()){
         username = document.getElementById('user-name').value;
@@ -18,12 +20,15 @@ submitBtn.addEventListener('click', function () {
         ipc.send('capture-username', username);
     }else{
         alert("please enter user name");
+
     }
 
 });
 
 //Send user message
-sendMessageButton.addEventListener('click', function () {
+sendMessageButton.addEventListener('click', function (event) {
+
+    event.preventDefault();
 
     if(message.value.trim()) {
 
