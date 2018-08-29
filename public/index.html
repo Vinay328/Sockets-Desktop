@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSockets 101</title>
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>-->
+    <link href="./styles.css" rel="stylesheet"/>
+</head>
+<body>
+
+<div id="anime-chat">
+
+    <div id="chat-window">
+
+        <div id="write-content"></div>
+
+    </div>
+
+    <input id="message" type="text" placeholder="Message"/>
+    <button id="send-message">Send Message</button>
+
+</div>
+
+<div id="overlay">
+    <div class="overlay_content">
+        <p><b>Please enter your name to use chat application</b></p>
+
+
+            <input id="user-name" placeholder="your_name" autofocus required>
+            <button type="button" id="username-submit">Submit</button>
+
+
+    </div>
+</div>
+
+<script src="./chat.js"></script>
+
+</body>
+</html>
