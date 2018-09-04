@@ -7,8 +7,11 @@ const dialog = require('electron').dialog;
 
 //Third party dependencies
 const io = require('socket.io-client');
+
+//Connecting to socket server
 let socket = io.connect('https://server-socket.herokuapp.com');
 
+//Handling connection events
 socket.on('connect_error', (error) => {
     dialog.showErrorBox("Connection Error", "Can't establish connection to the socket server, quitting the app");
     app.quit();
@@ -28,6 +31,7 @@ socket.on('connect', () => {
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+let userName;
 
 function createWindow() {
     //Create the browser window.
@@ -89,26 +93,32 @@ socket.on('chat', function (data) {
 
     mainWindow.webContents.send('message-received', data);
 
-    let myNotification = new Notification({
-        title: data.userName,
-        body: data.message,
-        hasReply: true,
-        silent: false,
-        closeButtonText: 'close'
-    });
+    //Only if the current window is minimized or not visible show notification to the user
+    if (mainWindow.isMinimized() || !mainWindow.isVisible() || !mainWindow.isFocused()) {
 
-    myNotification.show();
+        let myNotification = new Notification({
+            title: data.userName,
+            body: data.message,
+            hasReply: true,
+            silent: false,
+            closeButtonText: 'close'
+        });
 
-    myNotification.on('reply', (event, hasReply) => {
+        myNotification.show();
 
-        let data = {
-            message: hasReply,
-            userName: userName,
-        };
+        myNotification.on('reply', (event, hasReply) => {
 
-        mainWindow.webContents.send('own-message', data);
-        socket.emit('chat', data);
+            let data = {
+                message: hasReply,
+                userName: userName,
+            };
 
-    });
+            mainWindow.webContents.send('own-message', data);
+            socket.emit('chat', data);
+
+        });
+
+    }
+
 });
 
