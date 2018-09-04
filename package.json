@@ -11,10 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "electron": "^2.0.6",
-    "socket.io": "^2.1.1",
-    "socket.io-client": "^2.1.1",
-    "uuid": "^3.3.2"
+    "electron": "^2.0.6"
   },
   "devDependencies": {
     "electron-packager": "^12.1.0"

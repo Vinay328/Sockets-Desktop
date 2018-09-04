@@ -1,44 +1,29 @@
 //In-built modules
 const app = require('electron').app;
 const BrowserWindow = require('electron').BrowserWindow;
-const ipc = require('electron').ipcMain;
+const ipcMain = require('electron').ipcMain;
 const Notification = require('electron').Notification;
 const dialog = require('electron').dialog;
-
-//Third party dependencies
-const io = require('socket.io-client');
-
-//Connecting to socket server
-let socket = io.connect('https://server-socket.herokuapp.com');
-
-//Handling connection events
-socket.on('connect_error', (error) => {
-    dialog.showErrorBox("Connection Error", "Can't establish connection to the socket server, quitting the app");
-    app.quit();
-});
-
-socket.on('connect', () => {
-
-    let myNotification = new Notification({
-        title: "Connection Successfull",
-        body: "Successfully established connection to the socket server"
-    });
-
-    myNotification.show();
-
-});
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
-let userName;
 
 function createWindow() {
     //Create the browser window.
-    mainWindow = new BrowserWindow({width: 800, height: 600});
+    mainWindow = new BrowserWindow({
+        width: 800, height: 600, show: false, webPreferences: {
+            nodeIntegration: false,
+            preload: __dirname + '/preload.js'
+        }
+    });
 
     // and load the index.html of the app.
-    mainWindow.loadFile('public/index.html');
+    mainWindow.loadURL('https://chat-alpha.herokuapp.com/');
+
+    mainWindow.once('ready-to-show', () => {
+        mainWindow.show();
+    });
 
     //mainWindow.webContents.openDevTools();
 
@@ -49,6 +34,7 @@ function createWindow() {
         // when you should delete the corresponding element.
         mainWindow = null
     });
+
 }
 
 // This method will be called when Electron has finished
@@ -73,27 +59,10 @@ app.on('activate', function () {
     }
 });
 
-ipc.on('capture-username', function (events, user) {
-    userName = user;
-});
 
-ipc.on('emit-message', function (events, data) {
+//Show desktop notification to users
+ipcMain.on('show-notification', (event, data) => {
 
-    userName = data.userName;
-
-    socket.emit('chat', {
-        message: data.message,
-        userName: data.userName
-    });
-
-});
-
-//listen for events
-socket.on('chat', function (data) {
-
-    mainWindow.webContents.send('message-received', data);
-
-    //Only if the current window is minimized or not visible show notification to the user
     if (mainWindow.isMinimized() || !mainWindow.isVisible() || !mainWindow.isFocused()) {
 
         let myNotification = new Notification({
@@ -110,12 +79,9 @@ socket.on('chat', function (data) {
 
             let data = {
                 message: hasReply,
-                userName: userName,
             };
 
-            mainWindow.webContents.send('own-message', data);
-            socket.emit('chat', data);
-
+            mainWindow.webContents.send('notification-reply', data);
         });
 
     }
